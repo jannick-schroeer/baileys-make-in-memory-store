@@ -1,6 +1,6 @@
 {
   "name": "@naanzitos/baileys-make-in-memory-store",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Restore makeInMemoryStore functionality for Baileys - injects necessary files into the correct directory",
   "main": "index.js",
   "scripts": {
