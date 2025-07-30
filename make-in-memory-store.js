@@ -456,3 +456,12 @@ exports.default = (config) => {
     },
   }
 }
+
+// Named export for compatibility
+exports.makeInMemoryStore = exports.default;
+
+// ES6 module compatibility
+if (typeof module !== "undefined" && module.exports) {
+  module.exports.makeInMemoryStore = exports.default;
+  module.exports.default = exports.default;
+}

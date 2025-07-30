@@ -51,10 +51,11 @@ try {
 
     // Add named export for make-in-memory-store
     if (fileName === 'make-in-memory-store.js') {
-      // Add both CommonJS and ES6 exports
       content += '\n\n// Named export for compatibility\nexports.makeInMemoryStore = exports.default;\n'
-      content += '\n// ES6 module compatibility\nmodule.exports.makeInMemoryStore = exports.default;\n'
-      content += 'module.exports.default = exports.default;\n'
+      content += '\n// ES6 module compatibility\nif (typeof module !== "undefined" && module.exports) {\n'
+      content += '  module.exports.makeInMemoryStore = exports.default;\n'
+      content += '  module.exports.default = exports.default;\n'
+      content += '}\n'
     }
 
     // Copy to final destination
