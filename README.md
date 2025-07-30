@@ -84,7 +84,7 @@ If this package helped you, please give it a star on GitHub!
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/YOUR_USERNAME/baileys-make-in-memory-store)
+- [GitHub Repository](https://github.com/naanzitos/baileys-make-in-memory-store)
 - [npm Package](https://www.npmjs.com/package/baileys-make-in-memory-store)
-- [Issues](https://github.com/YOUR_USERNAME/baileys-make-in-memory-store/issues)
+- [Issues](https://github.com/naanzitos/baileys-make-in-memory-store/issues)
 - [Baileys Official Repository](https://github.com/WhiskeySockets/Baileys)
