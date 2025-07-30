@@ -65,16 +65,82 @@ try {
     console.log(`✅ ${fileName} copied to: ${targetFile}`)
   })
 
+  // Update Baileys main index to export makeInMemoryStore
+  const baileysIndexPath = path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'lib', 'index.js')
+  
+  if (fs.existsSync(baileysIndexPath)) {
+    console.log('📝 Updating Baileys index.js...')
+    
+    let indexContent = fs.readFileSync(baileysIndexPath, 'utf8')
+    
+    // Check if makeInMemoryStore export already exists
+    if (!indexContent.includes('makeInMemoryStore')) {
+      // Add makeInMemoryStore export
+      const exportLines = [
+        '// Added by @naanzitos/baileys-make-in-memory-store',
+        'try {',
+        '  const makeInMemoryStoreModule = require("./Store/make-in-memory-store");',
+        '  exports.makeInMemoryStore = makeInMemoryStoreModule.makeInMemoryStore || makeInMemoryStoreModule.default;',
+        '} catch (error) {',
+        '  console.warn("makeInMemoryStore not available:", error.message);',
+        '}'
+      ].join('\n')
+      
+      // Add at the end of the file
+      indexContent += '\n\n' + exportLines + '\n'
+      
+      fs.writeFileSync(baileysIndexPath, indexContent)
+      console.log('✅ makeInMemoryStore export added to Baileys index.js')
+    } else {
+      console.log('ℹ️  makeInMemoryStore export already exists in index.js')
+    }
+  } else {
+    console.log('⚠️  Baileys index.js not found, trying alternative paths...')
+    
+    // Try alternative paths
+    const altPaths = [
+      path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'index.js'),
+      path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'dist', 'index.js')
+    ]
+    
+    for (const altPath of altPaths) {
+      if (fs.existsSync(altPath)) {
+        console.log(`📝 Found Baileys index at: ${altPath}`)
+        let indexContent = fs.readFileSync(altPath, 'utf8')
+        
+        if (!indexContent.includes('makeInMemoryStore')) {
+          const exportLines = [
+            '// Added by @naanzitos/baileys-make-in-memory-store',
+            'try {',
+            '  const makeInMemoryStoreModule = require("./lib/Store/make-in-memory-store");',
+            '  exports.makeInMemoryStore = makeInMemoryStoreModule.makeInMemoryStore || makeInMemoryStoreModule.default;',
+            '} catch (error) {',
+            '  console.warn("makeInMemoryStore not available:", error.message);',
+            '}'
+          ].join('\n')
+          
+          indexContent += '\n\n' + exportLines + '\n'
+          fs.writeFileSync(altPath, indexContent)
+          console.log('✅ makeInMemoryStore export added to Baileys index.js')
+        }
+        break
+      }
+    }
+  }
+
   console.log('\n🎉 Injection completed successfully!')
   console.log('📦 Store files are now available:')
   filesToCopy.forEach(file => console.log(`   - ${file}`))
-  console.log('\n💡 You can now use: const { makeInMemoryStore } = require("@whiskeysockets/baileys")')
+  console.log('\n💡 You can now use:')
+  console.log('   - const { makeInMemoryStore } = require("@whiskeysockets/baileys")')
+  console.log('   - import { makeInMemoryStore } from "@whiskeysockets/baileys"')
+  console.log('   - import pkg from "@whiskeysockets/baileys"; const { makeInMemoryStore } = pkg')
 
 } catch (error) {
   console.error('❌ Error during injection:', error.message)
   console.error('\n🔍 Troubleshooting:')
   console.error('   1. Make sure @whiskeysockets/baileys is installed')
   console.error('   2. Try: npm install @whiskeysockets/baileys')
-  console.error('   3. Then reinstall: npm uninstall baileys-make-in-memory-store && npm install baileys-make-in-memory-store')
+  console.error('   3. Then reinstall: npm uninstall @naanzitos/baileys-make-in-memory-store && npm install @naanzitos/baileys-make-in-memory-store')
   process.exit(1)
 }
