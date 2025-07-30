@@ -52,10 +52,6 @@ try {
     // Add named export for make-in-memory-store
     if (fileName === 'make-in-memory-store.js') {
       content += '\n\n// Named export for compatibility\nexports.makeInMemoryStore = exports.default;\n'
-      content += '\n// ES6 module compatibility\nif (typeof module !== "undefined" && module.exports) {\n'
-      content += '  module.exports.makeInMemoryStore = exports.default;\n'
-      content += '  module.exports.default = exports.default;\n'
-      content += '}\n'
     }
 
     // Copy to final destination
@@ -66,66 +62,59 @@ try {
   })
 
   // Update Baileys main index to export makeInMemoryStore
-  const baileysIndexPath = path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'lib', 'index.js')
+  const possibleIndexPaths = [
+    path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'lib', 'index.js'),
+    path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'index.js'),
+    path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'dist', 'index.js')
+  ]
   
-  if (fs.existsSync(baileysIndexPath)) {
-    console.log('📝 Updating Baileys index.js...')
-    
-    let indexContent = fs.readFileSync(baileysIndexPath, 'utf8')
-    
-    // Check if makeInMemoryStore export already exists
-    if (!indexContent.includes('makeInMemoryStore')) {
-      // Add makeInMemoryStore export
-      const exportLines = [
-        '// Added by @naanzitos/baileys-make-in-memory-store',
-        'try {',
-        '  const makeInMemoryStoreModule = require("./Store/make-in-memory-store");',
-        '  exports.makeInMemoryStore = makeInMemoryStoreModule.makeInMemoryStore || makeInMemoryStoreModule.default;',
-        '} catch (error) {',
-        '  console.warn("makeInMemoryStore not available:", error.message);',
-        '}'
-      ].join('\n')
+  let indexUpdated = false
+  
+  for (const indexPath of possibleIndexPaths) {
+    if (fs.existsSync(indexPath)) {
+      console.log(`📝 Found Baileys index at: ${indexPath}`)
       
-      // Add at the end of the file
-      indexContent += '\n\n' + exportLines + '\n'
+      let indexContent = fs.readFileSync(indexPath, 'utf8')
       
-      fs.writeFileSync(baileysIndexPath, indexContent)
-      console.log('✅ makeInMemoryStore export added to Baileys index.js')
-    } else {
-      console.log('ℹ️  makeInMemoryStore export already exists in index.js')
-    }
-  } else {
-    console.log('⚠️  Baileys index.js not found, trying alternative paths...')
-    
-    // Try alternative paths
-    const altPaths = [
-      path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'index.js'),
-      path.join(nodeModulesPath, '@whiskeysockets', 'baileys', 'dist', 'index.js')
-    ]
-    
-    for (const altPath of altPaths) {
-      if (fs.existsSync(altPath)) {
-        console.log(`📝 Found Baileys index at: ${altPath}`)
-        let indexContent = fs.readFileSync(altPath, 'utf8')
-        
-        if (!indexContent.includes('makeInMemoryStore')) {
-          const exportLines = [
-            '// Added by @naanzitos/baileys-make-in-memory-store',
-            'try {',
-            '  const makeInMemoryStoreModule = require("./lib/Store/make-in-memory-store");',
-            '  exports.makeInMemoryStore = makeInMemoryStoreModule.makeInMemoryStore || makeInMemoryStoreModule.default;',
-            '} catch (error) {',
-            '  console.warn("makeInMemoryStore not available:", error.message);',
-            '}'
-          ].join('\n')
-          
-          indexContent += '\n\n' + exportLines + '\n'
-          fs.writeFileSync(altPath, indexContent)
-          console.log('✅ makeInMemoryStore export added to Baileys index.js')
+      // Remove any existing makeInMemoryStore exports to avoid duplicates
+      indexContent = indexContent.replace(/\/\/ Added by.*baileys-make-in-memory-store[\s\S]*?}\s*$/gm, '')
+      
+      // Check if makeInMemoryStore export already exists
+      if (!indexContent.includes('exports.makeInMemoryStore')) {
+        // Determine the correct require path based on index location
+        let requirePath = './Store/make-in-memory-store'
+        if (indexPath.includes('/lib/index.js')) {
+          requirePath = './Store/make-in-memory-store'
+        } else {
+          requirePath = './lib/Store/make-in-memory-store'
         }
+        
+        // Add makeInMemoryStore export
+        const exportCode = `
+// Added by @naanzitos/baileys-make-in-memory-store
+try {
+  const makeInMemoryStoreModule = require("${requirePath}");
+  exports.makeInMemoryStore = makeInMemoryStoreModule.makeInMemoryStore || makeInMemoryStoreModule.default;
+} catch (error) {
+  // makeInMemoryStore not available
+}
+`
+        
+        indexContent += exportCode
+        fs.writeFileSync(indexPath, indexContent)
+        console.log('✅ makeInMemoryStore export added to Baileys index.js')
+        indexUpdated = true
+        break
+      } else {
+        console.log('ℹ️  makeInMemoryStore export already exists in index.js')
+        indexUpdated = true
         break
       }
     }
+  }
+  
+  if (!indexUpdated) {
+    console.log('⚠️  Could not find Baileys index.js to update')
   }
 
   console.log('\n🎉 Injection completed successfully!')
