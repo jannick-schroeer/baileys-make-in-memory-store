@@ -2,6 +2,10 @@
 
 [![npm version](https://badge.fury.io/js/@naanzitos%2Fbaileys-make-in-memory-store.svg)](https://badge.fury.io/js/@naanzitos/baileys-make-in-memory-store)
 
+> **Note:**  
+> This package is now a standalone module and **no longer injects itself** into Baileys.  
+> You must import and use `makeInMemoryStore` directly from this package.
+
 ## 🚀 Installation
 
 ```bash
