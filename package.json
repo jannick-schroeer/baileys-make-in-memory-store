@@ -1,10 +1,10 @@
 {
-  "name": "@naanzitos/baileys-make-in-memory-store",
-  "version": "1.0.4",
-  "description": "Restore makeInMemoryStore functionality for Baileys - injects necessary files into the correct directory",
+  "name": "baileys-make-in-memorystore",
+  "version": "2.0.0",
+  "description": "Standalone makeInMemoryStore for Baileys. No injection. Import as a regular package.",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "postinstall": "node inject-store.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,10 +20,8 @@
     "whatsapp",
     "store",
     "memory",
-    "fix",
     "makeInMemoryStore",
-    "whatsapp-web",
-    "baileys-fix"
+    "whatsapp-web"
   ],
   "author": "Renan Nogueira <naanzitos@gmail.com>",
   "license": "MIT",
@@ -37,7 +35,6 @@
     }
   },
   "files": [
-    "inject-store.js",
     "make-in-memory-store.js",
     "make-ordered-dictionary.js",
     "object-repository.js",

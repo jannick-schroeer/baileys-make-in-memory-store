@@ -5,12 +5,12 @@ var __importDefault =
     return mod && mod.__esModule ? mod : { default: mod }
   }
 Object.defineProperty(exports, '__esModule', { value: true })
-exports.waLabelAssociationKey = exports.waMessageID = exports.waChatKey = void 0
-const WAProto_1 = require('../../WAProto')
-const Defaults_1 = require('../Defaults')
-const LabelAssociation_1 = require('../Types/LabelAssociation')
-const Utils_1 = require('../Utils')
-const WABinary_1 = require('../WABinary')
+exports.makeInMemoryStore = void 0
+const WAProto_1 = require('@whiskeysockets/baileys/lib/WAProto')
+const Defaults_1 = require('@whiskeysockets/baileys/lib/Defaults')
+const LabelAssociation_1 = require('@whiskeysockets/baileys/lib/Types/LabelAssociation')
+const Utils_1 = require('@whiskeysockets/baileys/lib/Utils')
+const WABinary_1 = require('@whiskeysockets/baileys/lib/WABinary')
 const make_ordered_dictionary_1 = __importDefault(require('./make-ordered-dictionary'))
 const object_repository_1 = require('./object-repository')
 const waChatKey = (pin) => ({
@@ -21,21 +21,19 @@ const waChatKey = (pin) => ({
     c.id,
   compare: (k1, k2) => k2.localeCompare(k1),
 })
-exports.waChatKey = waChatKey
 const waMessageID = (m) => m.key.id || ''
-exports.waMessageID = waMessageID
-exports.waLabelAssociationKey = {
+const waLabelAssociationKey = {
   key: (la) =>
     la.type === LabelAssociation_1.LabelAssociationType.Chat
       ? la.chatId + la.labelId
       : la.chatId + la.messageId + la.labelId,
   compare: (k1, k2) => k2.localeCompare(k1),
 }
-const makeMessagesDictionary = () => (0, make_ordered_dictionary_1.default)(exports.waMessageID)
-exports.default = (config) => {
+const makeMessagesDictionary = () => (0, make_ordered_dictionary_1.default)(waMessageID)
+const makeInMemoryStore = (config) => {
   const socket = config.socket
-  const chatKey = config.chatKey || (0, exports.waChatKey)(true)
-  const labelAssociationKey = config.labelAssociationKey || exports.waLabelAssociationKey
+  const chatKey = config.chatKey || waChatKey(true)
+  const labelAssociationKey = config.labelAssociationKey || waLabelAssociationKey
   const logger =
     config.logger || Defaults_1.DEFAULT_CONNECTION_CONFIG.logger.child({ stream: 'in-mem-store' })
   const KeyedDB = require('@adiwajshing/keyed-db').default
@@ -458,10 +456,11 @@ exports.default = (config) => {
 }
 
 // Named export for compatibility
-exports.makeInMemoryStore = exports.default;
+exports.makeInMemoryStore = makeInMemoryStore;
 
 // ES6 module compatibility
 if (typeof module !== "undefined" && module.exports) {
-  module.exports.makeInMemoryStore = exports.default;
-  module.exports.default = exports.default;
+  module.exports = exports.makeInMemoryStore;
+  module.exports.makeInMemoryStore = exports.makeInMemoryStore;
+  module.exports.default = exports.makeInMemoryStore;
 }
