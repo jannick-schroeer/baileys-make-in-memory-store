@@ -6,7 +6,7 @@ var __importDefault =
   }
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.makeInMemoryStore = void 0
-const WAProto_1 = require('@whiskeysockets/baileys/lib/WAProto')
+const WAProto_1 = require('@whiskeysockets/baileys/WAProto')
 const Defaults_1 = require('@whiskeysockets/baileys/lib/Defaults')
 const LabelAssociation_1 = require('@whiskeysockets/baileys/lib/Types/LabelAssociation')
 const Utils_1 = require('@whiskeysockets/baileys/lib/Utils')
